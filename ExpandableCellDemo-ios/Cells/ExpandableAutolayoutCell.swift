@@ -1,7 +1,7 @@
 import SnapKit
 import TableKit
 
-class ExpandableAutolayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
+final class ExpandableAutolayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
 
     // MARK: - Init
 

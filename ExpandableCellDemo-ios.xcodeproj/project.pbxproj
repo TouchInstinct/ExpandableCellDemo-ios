@@ -265,7 +265,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-ExpandableCellDemo-ios/Pods-ExpandableCellDemo-ios-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-ExpandableCellDemo-ios/Pods-ExpandableCellDemo-ios-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/PinLayout/PinLayout.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 				"${BUILT_PRODUCTS_DIR}/TableKit/TableKit.framework",
@@ -280,7 +280,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-ExpandableCellDemo-ios/Pods-ExpandableCellDemo-ios-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ExpandableCellDemo-ios/Pods-ExpandableCellDemo-ios-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
