@@ -33,7 +33,6 @@ class BaseTableViewCell: UITableViewCell {
         clipsToBounds = true
 
         label.numberOfLines = 0
-        label.preferredMaxLayoutWidth = UIScreen.main.bounds.width - 2 * BaseTableViewCell.textMargin
 
         collapsedView.addSubview(indexLabel)
         containerView.addSubview(collapsedView)
@@ -41,6 +40,12 @@ class BaseTableViewCell: UITableViewCell {
         contentView.addSubview(containerView)
 
         initializeView()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        label.preferredMaxLayoutWidth = contentView.frame.width - 2 * BaseTableViewCell.textMargin
     }
 
     required init?(coder aDecoder: NSCoder) {

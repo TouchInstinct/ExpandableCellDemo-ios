@@ -1,7 +1,7 @@
 import TableKit
 import PinLayout
 
-class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
+final class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
 
     // MARK: - Init
 

@@ -1,6 +1,6 @@
 import TableKit
 
-class ExpandableManualLayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
+final class ExpandableManualLayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
 
     // MARK: - Init
 
