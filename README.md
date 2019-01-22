@@ -1,6 +1,6 @@
 # Expandable Cells
 
-<div align="center"><img src="expandable_cells_demo.gif"></div>
+<div align="center"><img src="expandable_states.gif"></div>
 
 ## Summary
 
@@ -15,16 +15,8 @@
 Для того, чтобы ячейки разворачивались/сворачивались плавно, без скачков и артефактов, необходимо, чтобы высота каждой ячейки на экране была подсчитана. Использование ```estimatedHeight``` ведет к вышеуказанным недостаткам. Форк содержит калькулятор высоты ```ExpandableCellHeightCalculator```, который необходимо использовать при инициализации ```TableDirector```:
 
 ```swift
-private lazy var expandableCellHeightCalculator = ExpandableCellHeightCalculator(tableView: tableView)
-
-override func viewDidLoad() {
-    super.viewDidLoad()
-
-    tableDirector = TableDirector(tableView: tableView,
-                                  cellHeightCalculator: expandableCellHeightCalculator)
-
-    ...
-}
+private lazy var tableDirector = TableDirector(tableView: tableView,
+                                               cellHeightCalculator: ExpandableCellHeightCalculator(tableView: tableView))
 ```
 
 Благодаря этому точная высота подсчитывается автоматически для ячеек, сверстанных как с помощью AutoLayout, так и вручную. Также этот калькулятор позволяет менять высоту для конктретной ячейки.
@@ -47,13 +39,15 @@ let containerView = UIView()
 Важно:
 - Если в вашей ячейке есть многострочные ```label'ы``` и вы верстаете с помощью ```AutoLayout```, указывайте ```label.preferredMaxLayoutWidth```. Это необходимо сделать не только для раскрывающейся ячейки, но и для всех остальных ячеек на экране, содержащем раскрывающиеся ячейки. **Если вы не укажете ```label.preferredMaxLayoutWidth```, высота ячейки будет подсчитана неверно.**
 
-Поэтому лучше явно указывать ```preferredMaxLayoutWidth``` в зависимости от ширины ячейки.
+Поэтому лучше явно указывать ```preferredMaxLayoutWidth``` в зависимости от ширины ячейки. Передавайте ширину во viewModel ячейки и устанавливайте ```preferredMaxLayoutWidth``` в ```configure(with _: MyExpandableCellViewModel)```.
 
 ```swift
-override func layoutSubviews() {
-    super.layoutSubviews()
+func configure(with viewModel: MyExpandableCellViewModel) {
+    ...
 
-    label.preferredMaxLayoutWidth = contentView.frame.width - 2 * textMargin
+    label.preferredMaxLayoutWidth = viewModel.width - 2 * textMargin
+
+    ...
 }
 ```
 
@@ -63,19 +57,63 @@ override func layoutSubviews() {
 
 ## Expandable
 
-Для создания раскрывающейся необходимо сделать следующее.
+Для создания раскрывающейся ячейки необходимо сделать следующее.
 
 1. ViewModel ячейки должна быть классом и реализовать протокол ```ExpandableCellViewModel```
 
 ```swift
 class MyExpandableCellViewModel: ExpandableCellViewModel {
 
-    var isCollapsed = true
+    var expandableState: ExpandableState = .expanded
 
 }
 ```
 
-Свойство ```isCollapsed``` будет меняться автоматически в зависимости от текущего состояния ячейки.
+Свойство ```expandableState``` будет меняться автоматически, вы не должны менять его вручную. Значение свойства, прописанное в коде - это начальное состояние ячейки. Вы можете указать любое.
+
+В случае, если вам нужны промежуточные состояния, кроме ```collapsed``` и ```expanded```, добавьте доступные состояния. Лучше создать для каждого кастомного состояния отдельную статическую константу. Так будет легче на него впоследствии переключаться.
+
+```swift
+class MyExpandableCellViewModel: ExpandableCellViewModel {
+
+    var expandableState: ExpandableState = .expanded
+
+
+    static let oneLineState: ExpandableState = .height(value: collapsedHeight + 40)
+    
+    static let twoLinesState: ExpandableState = .height(value: collapsedHeight + 60)
+    
+    static let threeLinesState: ExpandableState = .height(value: collapsedHeight + 80)
+
+}
+```
+
+Если вы хотите, чтобы состояния переключались по очереди без указания, на какое конкретно состояние нужно переключиться (как в примере по тапу на свернутое представление), добавьте массив ```availableStates```. В каком бы состоянии вы сейчас ни находились, вызвав ```toggleState()``` вы перейдете в следующее за ним состояние в массиве ```availableStates```.
+
+```swift
+class MyExpandableCellViewModel: ExpandableCellViewModel {
+
+    var expandableState: ExpandableState = .expanded
+
+
+    static let oneLineState: ExpandableState = .height(value: collapsedHeight + 40)
+    
+    static let twoLinesState: ExpandableState = .height(value: collapsedHeight + 60)
+    
+    static let threeLinesState: ExpandableState = .height(value: collapsedHeight + 80)
+
+    var availableStates: [ExpandableState] = [
+        .collapsed,
+        oneLineState,
+        twoLinesState,
+        threeLinesState,
+        .expanded
+    ]
+
+}
+```
+
+Если вам нужны только состояния ```collapsed``` и ```expanded``` или вы будете вручную переключать состояния, ```availableStates``` указывать НЕ нужно.
 
 2. Реализуйте протокол ```ConfigurableCell``` для ячейки
 
@@ -107,13 +145,13 @@ final class ExpandableAutolayoutCell: UITableViewCell, ConfigurableCell {
 
 3) Реализуйте протокол ```Expandable```. 
 
-Вызовите метод ```initState()``` в конце ```configure(with _: MyExpandableCellViewModel)```. ```initState``` переводит ячейку в состояние, соответствующее полю ```isCollapsed``` ```viewModel'и```.
+Вызовите метод ```initState()``` в конце ```configure(with _: MyExpandableCellViewModel)```. ```initState``` переводит ячейку в состояние, соответствующее свойству ```expandableState``` ```viewModel'и```.
 
-Реализуйте функцию ```configureAppearance(isCollapsed: Bool)```. Функция должна содержать изменения представления ячейки, которые происходят при разворачивании/сворачивании.
+Реализуйте функцию ```configure(state: ExpandableState)```. Функция должна содержать изменения представления ячейки, которые происходят при разворачивании/сворачивании.
 
-Измените constraint высоты container'а в зависимости от свойства isCollapsed. В данном примере в развернутом состоянии у нас показывается ```UILabel``` произвольной длины (numberOfLines = 0). Чтобы получить высоту для развернутого состояния, берем ```label.frame.maxY```. Также можете добавить произвольный ```margin``` снизу. Калькулятор высоты его учтет.
+Измените constraint высоты container'а в зависимости от свойства ```state```. В данном примере в развернутом состоянии у нас показывается ```UILabel``` произвольной длины (numberOfLines = 0). Чтобы получить высоту для развернутого состояния, берем ```label.frame.maxY```. Также можете добавить произвольный ```margin``` снизу. Калькулятор высоты его учтет.
 
-Меняйте цвет/прозрачноть и все, что должно меняться при разворачивании/сворачивании. Все изменения, описанные в ```configureAppearance```, будут автоматически анимироваться.
+Меняйте цвет/прозрачноть и все, что должно меняться при разворачивании/сворачивании. Все изменения, описанные в ```configure(state: ExpandableState)```, будут автоматически анимироваться.
 
 ```swift
 final class ExpandableAutolayoutCell: UITableViewCell, ConfigurableCell, Expandable {
@@ -130,27 +168,43 @@ final class ExpandableAutolayoutCell: UITableViewCell, ConfigurableCell, Expanda
 
     // MARK: - Expandable
 
-    override func configureAppearance(isCollapsed: Bool) {
+    func configure(state: ExpandableState) {
         guard let viewModel = viewModel else {
             return
         }
 
-        heightConstraint?.layoutConstraints.first?.constant = isCollapsed
-            ? BaseExpandableCell.collapsedHeight
-            : label.frame.maxY + BaseExpandableCell.bottomMargin
+        heightConstraint?.layoutConstraints.first?.constant = state.isCollapsed
+            ? BaseTableViewCell.collapsedHeight
+            : state.height ?? (label.frame.maxY + BaseTableViewCell.bottomMargin)
 
-        containerView.backgroundColor = isCollapsed ? viewModel.collapsedColor : viewModel.expandedColor
+        containerView.backgroundColor = state.isCollapsed ? viewModel.collapsedColor : .random()
 
-        label.alpha = isCollapsed ? 0 : 1
+        label.alpha = state.isCollapsed ? 0 : 1
     }
 
 }
 ```
 
+Если у вас всего два состояния ячейки, используйте упрощенный (слегка) код для изменения ```heightConstraint```:
+```swift
+heightConstraint?.layoutConstraints.first?.constant = state.isCollapsed
+    ? BaseTableViewCell.collapsedHeight
+    : (label.frame.maxY + BaseTableViewCell.bottomMargin)
+```
+
+Как вы можете видеть, здесь нет ```state.height``` по сравнению с кодом выше. ```state.height``` необходимо указывать, чтобы учитывать промежуточные состояния.
+
 4) Меняйте состояние ячейки
 
-Создайте обработчик тапа для свернутого представления ячейки. Вызовите в нем метод ```toggleState()```.
+Если у вас всего два состояния ячейки, создайте обработчик тапа для свернутого представления ячейки. Вызовите в нем метод ```toggleState()```.
 
-Если ячейка свернута, она развернется и свойство isCollapsed viewModel'и изменится на false. Если ячейка развернута, она свернется и isCollapsed изменится на true.
+Если ячейка свернута, она развернется и свойство ```state``` viewModel'и изменится на ```expanded```. Если ячейка развернута, она свернется и ```state``` изменится на ```collapsed```.
 
-Данный метод вызывает ```configureAppearance(isCollapsed: Bool)``` и обновляет таблицу.
+В случае наличия промежуточных состояний, ```toggleState()``` будет переключать их по очереди. Для принудительного перехода в любое состояния вызовите transition(to: ExpandableState), например:
+```swift
+transition(to: MyExpandableCellViewModel.oneLineState)
+transition(to: .expanded)
+transition(to: .collapsed)
+```
+
+Данные методы используют ```configure(state: ExpandableState)``` и обновляют таблицу.
