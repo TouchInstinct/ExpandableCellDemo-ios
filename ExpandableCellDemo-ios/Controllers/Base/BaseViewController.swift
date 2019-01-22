@@ -13,11 +13,12 @@ class BaseViewController: UIViewController {
         return ""
     }
 
-    var rows: [Row] {
+    func rows(width: CGFloat) -> [Row] {
         return []
     }
 
-    private lazy var tableDirector = TableDirector(tableView: tableView)
+    private lazy var tableDirector = TableDirector(tableView: tableView,
+                                                   cellHeightCalculator: ExpandableCellHeightCalculator(tableView: tableView))
 
     // MARK: - Life Cycle
 
@@ -30,13 +31,14 @@ class BaseViewController: UIViewController {
         tableView.separatorStyle = .none
         navigationItem.title = layoutType
 
+        let width = view.frame.width
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.loadRows()
+            self?.loadRows(width: width)
         }
     }
 
-    func loadRows() {
-        let section = TableSection(onlyRows: rows)
+    func loadRows(width: CGFloat) {
+        let section = TableSection(onlyRows: rows(width: width))
 
         DispatchQueue.main.async { [weak self] in
             self?.tableDirector.replace(withSections: [section])

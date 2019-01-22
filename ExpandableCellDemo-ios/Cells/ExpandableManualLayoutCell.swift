@@ -5,6 +5,8 @@ final class ExpandableManualLayoutCell: BaseTableViewCell, ConfigurableCell, Exp
     // MARK: - Init
 
     override func initializeView() {
+        super.initializeView()
+        
         collapsedView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(expand)))
     }
 
@@ -18,40 +20,45 @@ final class ExpandableManualLayoutCell: BaseTableViewCell, ConfigurableCell, Exp
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        
+        guard let viewModel = viewModel else {
+            return
+        }
 
         collapsedView.frame = CGRect(x: 0,
                                      y: 0,
-                                     width: UIScreen.main.bounds.width,
+                                     width: viewModel.width,
                                      height: BaseTableViewCell.collapsedHeight)
 
         indexLabel.frame = CGRect(x: 0,
                                   y: 0,
-                                  width: UIScreen.main.bounds.width,
+                                  width: viewModel.width,
                                   height: 0)
         indexLabel.sizeToFit()
 
         label.frame = CGRect(x: BaseTableViewCell.textMargin,
                              y: collapsedView.frame.maxY + BaseTableViewCell.textMargin,
-                             width: UIScreen.main.bounds.width - BaseTableViewCell.textMargin * 2,
+                             width: viewModel.width - BaseTableViewCell.textMargin * 2,
                              height: 0)
         label.sizeToFit()
     }
 
     // MARK: - Expandable
 
-    func configureAppearance(isCollapsed: Bool) {
+    func configure(state: ExpandableState) {
         guard let viewModel = viewModel else {
             return
         }
 
-        containerView.frame = CGRect(x: 0,
-                                     y: 0,
-                                     width: UIScreen.main.bounds.width,
-                                     height: isCollapsed ? BaseTableViewCell.collapsedHeight : (label.frame.maxY + BaseTableViewCell.bottomMargin))
+        let height = state.isCollapsed
+            ? BaseTableViewCell.collapsedHeight
+            : state.height ?? (label.frame.maxY + BaseTableViewCell.bottomMargin)
+        
+        containerView.frame = CGRect(x: 0, y: 0, width: viewModel.width, height: height)
 
-        containerView.backgroundColor = isCollapsed ? viewModel.collapsedColor : viewModel.expandedColor
+        containerView.backgroundColor = state.isCollapsed ? viewModel.collapsedColor : .random()
 
-        label.alpha = isCollapsed ? 0 : 1
+        label.alpha = state.isCollapsed ? 0 : 1
     }
 
     // MARK: - ConfigurableCell
