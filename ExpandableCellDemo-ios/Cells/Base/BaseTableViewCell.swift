@@ -19,6 +19,16 @@ class BaseTableViewCell: UITableViewCell {
     let label = UILabel()
 
     let indexLabel = UILabel()
+    
+    let collapsedStateButton = UIButton()
+    
+    let oneLineButton = UIButton()
+    
+    let twoLinesButton = UIButton()
+    
+    let threeLinesButton = UIButton()
+    
+    let expandedStateButton = UIButton()
 
     // MARK: - Properties
 
@@ -35,17 +45,16 @@ class BaseTableViewCell: UITableViewCell {
         label.numberOfLines = 0
 
         collapsedView.addSubview(indexLabel)
+        collapsedView.addSubview(collapsedStateButton)
+        collapsedView.addSubview(expandedStateButton)
+        collapsedView.addSubview(oneLineButton)
+        collapsedView.addSubview(twoLinesButton)
+        collapsedView.addSubview(threeLinesButton)
         containerView.addSubview(collapsedView)
         containerView.addSubview(label)
         contentView.addSubview(containerView)
 
         initializeView()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        label.preferredMaxLayoutWidth = contentView.frame.width - 2 * BaseTableViewCell.textMargin
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -55,7 +64,17 @@ class BaseTableViewCell: UITableViewCell {
     // MARK: - To Override
 
     func initializeView() {
-
+        collapsedStateButton.setTitle("Collapsed", for: .normal)
+        oneLineButton.setTitle("One Line", for: .normal)
+        twoLinesButton.setTitle("Two Lines", for: .normal)
+        threeLinesButton.setTitle("Three Lines", for: .normal)
+        expandedStateButton.setTitle("Expanded", for: .normal)
+        
+        [collapsedStateButton, oneLineButton, twoLinesButton, threeLinesButton, expandedStateButton]
+            .forEach { button in
+                button.setTitleColor(.black, for: .normal)
+                button.titleLabel?.font = .systemFont(ofSize: 10)
+            }
     }
 
 }

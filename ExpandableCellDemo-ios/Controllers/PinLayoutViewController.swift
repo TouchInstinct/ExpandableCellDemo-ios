@@ -6,10 +6,10 @@ class PinLayoutViewController: BaseViewController {
         return "Pin Layout"
     }
 
-    override var rows: [Row] {
+    override func rows(width: CGFloat) -> [Row] {
         return Array(0...100)
             .map {
-                TableRow<ExpandablePinLayoutCell>(item: BaseExpandableCellViewModel(index: $0))
+                TableRow<ExpandablePinLayoutCell>(item: BaseExpandableCellViewModel(index: $0, width: width))
         }
     }
 

@@ -1,12 +1,12 @@
 PODS:
   - PinLayout (1.8.6)
   - SnapKit (4.2.0)
-  - TableKit (2.8.0)
+  - TableKit (2.8.1)
 
 DEPENDENCIES:
   - PinLayout
   - SnapKit
-  - TableKit (from `https://github.com/TouchInstinct/TableKit`, commit `6ef5ad504eb3305db32ba98377bd896474914943`)
+  - TableKit (from `https://github.com/TouchInstinct/TableKit`, commit `ff18a4d8b84e5970963e69968bc17399c8c855c4`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -15,19 +15,19 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   TableKit:
-    :commit: 6ef5ad504eb3305db32ba98377bd896474914943
+    :commit: ff18a4d8b84e5970963e69968bc17399c8c855c4
     :git: https://github.com/TouchInstinct/TableKit
 
 CHECKOUT OPTIONS:
   TableKit:
-    :commit: 6ef5ad504eb3305db32ba98377bd896474914943
+    :commit: ff18a4d8b84e5970963e69968bc17399c8c855c4
     :git: https://github.com/TouchInstinct/TableKit
 
 SPEC CHECKSUMS:
   PinLayout: fe2a2432d6982588e208572005c941aeeae417ab
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
-  TableKit: d635663343d00e209f258e35d4ee0072ad1beb1a
+  TableKit: 18a0049dea981c1106409bdeebc763ef74d36f02
 
-PODFILE CHECKSUM: 6b497b1c0f4030ade5783db0b837662f14759131
+PODFILE CHECKSUM: edc056e576a26e481d1110118f841d78d997b954
 
 COCOAPODS: 1.6.0.beta.2

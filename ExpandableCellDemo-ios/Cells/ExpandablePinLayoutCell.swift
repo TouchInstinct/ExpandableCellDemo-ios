@@ -2,10 +2,12 @@ import TableKit
 import PinLayout
 
 final class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expandable {
-
+    
     // MARK: - Init
 
     override func initializeView() {
+        super.initializeView()
+        
         collapsedView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(expand)))
     }
 
@@ -19,12 +21,22 @@ final class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expand
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        indexLabel.pin
-            .left()
+        
+        guard let viewModel = viewModel else {
+            return
+        }
+        
+        containerView.pin
             .top()
-            .sizeToFit()
-
+            .horizontally()
+            .width(viewModel.width)
+        
+        collapsedView.pin
+            .top()
+            .left()
+            .right()
+            .height(BaseTableViewCell.collapsedHeight)
+        
         label.pin
             .below(of: collapsedView)
             .marginTop(BaseTableViewCell.textMargin)
@@ -32,29 +44,28 @@ final class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expand
             .right(BaseTableViewCell.textMargin)
             .sizeToFit(.width)
 
-        collapsedView.pin
-            .top()
+        indexLabel.pin
             .left()
-            .right()
-            .height(BaseTableViewCell.collapsedHeight)
+            .top()
+            .sizeToFit()
     }
 
     // MARK: - Expandable
 
-    func configureAppearance(isCollapsed: Bool) {
+    func configure(state: ExpandableState) {
         guard let viewModel = viewModel else {
             return
         }
+        
+        let height = state.isCollapsed
+            ? BaseTableViewCell.collapsedHeight
+            : state.height ?? (label.frame.maxY + BaseTableViewCell.bottomMargin)
+        
+        containerView.pin.height(height)
+        
+        containerView.backgroundColor = state.isCollapsed ? viewModel.collapsedColor : .random()
 
-        containerView.pin
-            .top()
-            .left()
-            .right()
-            .height(isCollapsed ? BaseTableViewCell.collapsedHeight : (label.frame.maxY + BaseTableViewCell.bottomMargin))
-
-        containerView.backgroundColor = isCollapsed ? viewModel.collapsedColor : viewModel.expandedColor
-
-        label.alpha = isCollapsed ? 0 : 1
+        label.alpha = state.isCollapsed ? 0 : 1
     }
 
     // MARK: - ConfigurableCell
@@ -63,6 +74,7 @@ final class ExpandablePinLayoutCell: BaseTableViewCell, ConfigurableCell, Expand
         self.viewModel = viewModel
 
         label.text = viewModel.text
+
         indexLabel.text = String(viewModel.index)
 
         initState()

@@ -6,10 +6,10 @@ class ManualLayoutViewController: BaseViewController {
         return "Manual Layout"
     }
 
-    override var rows: [Row] {
+    override func rows(width: CGFloat) -> [Row] {
         return Array(0...100)
             .map {
-                TableRow<ExpandableManualLayoutCell>(item: BaseExpandableCellViewModel(index: $0))
+                TableRow<ExpandableManualLayoutCell>(item: BaseExpandableCellViewModel(index: $0, width: width))
         }
     }
 
